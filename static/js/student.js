@@ -1,68 +1,122 @@
 
-function getCSRFToken() { return document.querySelector('[name=csrfmiddlewaretoken]').value; }
-
-function showToast(msg, type="success") {
-    let toast = $('#toast');
-    toast.removeClass('text-bg-success text-bg-danger');
-    toast.addClass(type === 'success' ? 'text-bg-success' : 'text-bg-danger');
-    toast.find('.toast-body').text(msg);
-    new bootstrap.Toast(toast[0]).show();
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
 }
 
-// Add Student
-$('#addForm').submit(function(e){
+function showToast(msg, type = "success") {
+    const toastEl = $('#toast');
+    toastEl.removeClass('text-bg-success text-bg-danger');
+    toastEl.addClass(type === 'success' ? 'text-bg-success' : 'text-bg-danger');
+    toastEl.find('.toast-body').text(msg);
+    new bootstrap.Toast(toastEl[0]).show();
+}
+
+function clearErrors(form) {
+    form.find('.text-danger').text('');
+}
+
+function displayErrors(form, errors) {
+    for (const field in errors) {
+        form.find(`.${field}_error`).text(errors[field]);
+    }
+}
+
+function setupRealtimeValidation(form) {
+    form.find('input, textarea, select').on('input change', function() {
+        $(this).siblings('.text-danger').text('');
+    });
+}
+
+$('#addForm').submit(function(e) {
     e.preventDefault();
+    const form = $(this);
+    clearErrors(form);
+
     $.ajax({
-        url: `/students/add/`,
+        url: '/students/add/',
         method: 'POST',
-        data: $(this).serialize(),
-        success: function(res){
-            showToast(res.message, res.status);
-            if(res.status === 'success'){ location.reload(); }
+        data: form.serialize(),
+        success: function(res) {
+            if (res.status === 'success') {
+                showToast(res.message, 'success');
+                $('#addModal').modal('hide');
+                setTimeout(() => location.reload(), 500);
+            } else if (res.status === 'error_fields') {
+                displayErrors(form, res.errors);
+            } else {
+                showToast(res.message || 'Something went wrong!', 'danger');
+            }
+        },
+        error: function() {
+            showToast('Server error!', 'danger');
         }
     });
 });
 
-// Edit Button
-$('#studentTable').on('click', '.editBtn', function(){
-    $('#edit_id').val($(this).data('id'));
-    $('#edit_name').val($(this).data('name'));
-    $('#edit_email').val($(this).data('email'));
-    $('#edit_phone').val($(this).data('phone'));
-    $('#edit_address').val($(this).data('address'));
-    $('#edit_status').val($(this).data('status'));
-    var editModal = new bootstrap.Modal(document.getElementById('editModal'));
-    editModal.show();
+setupRealtimeValidation($('#addForm'));
+
+
+$('#studentTable').on('click', '.editBtn', function() {
+    const btn = $(this);
+    $('#edit_id').val(btn.data('id'));
+    $('#edit_name').val(btn.data('name'));
+    $('#edit_email').val(btn.data('email'));
+    $('#edit_phone').val(btn.data('phone'));
+    $('#edit_address').val(btn.data('address'));
+    $('#edit_status').val(btn.data('status'));
+
+    clearErrors($('#editForm'));
+    new bootstrap.Modal(document.getElementById('editModal')).show();
 });
 
-// Edit Submit
-$('#editForm').submit(function(e){
+$('#editForm').submit(function(e) {
     e.preventDefault();
-    let id = $('#edit_id').val();
+    const form = $(this);
+    clearErrors(form);
+    const id = $('#edit_id').val();
+
     $.ajax({
         url: `/students/update/${id}/`,
         method: 'POST',
-        data: $(this).serialize(),
-        success: function(res){
-            showToast(res.message, res.status);
-            if(res.status === 'success'){ location.reload(); }
+        data: form.serialize(),
+        success: function(res) {
+            if (res.status === 'success') {
+                showToast(res.message, 'success');
+                $('#editModal').modal('hide');
+                setTimeout(() => location.reload(), 500);
+            } else if (res.status === 'error_fields') {
+                displayErrors(form, res.errors);
+            } else {
+                showToast(res.message || 'Something went wrong!', 'danger');
+            }
+        },
+        error: function() {
+            showToast('Server error!', 'danger');
         }
     });
 });
 
-// Delete
-$('#studentTable').on('click', '.deleteBtn', function(){
-    if(confirm("Are you sure to delete this student?")){
-        let id = $(this).data('id');
-        $.ajax({
-            url: `/students/delete/${id}/`,
-            method: 'POST',
-            headers: {'X-CSRFToken': getCSRFToken()},
-            success: function(res){
-                showToast(res.message, res.status);
-                if(res.status === 'success'){ $(`#row${id}`).remove(); }
-            }
-        });
-    }
-});
+setupRealtimeValidation($('#editForm'));
 
+$('#studentTable').on('click', '.deleteBtn', function() {
+    if (!confirm('Are you sure you want to delete this student?')) return;
+
+    const id = $(this).data('id');
+
+    $.ajax({
+        url: `/students/delete/${id}/`,
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCSRFToken() },
+        success: function(res) {
+            if (res.status === 'success') {
+                showToast(res.message, 'success');
+                $(`#row${id}`).remove();
+            } else {
+                showToast(res.message || 'Something went wrong!', 'danger');
+            }
+        },
+        error: function() {
+            showToast('Server error!', 'danger');
+        }
+    });
+});
