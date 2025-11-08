@@ -1,20 +1,15 @@
 from django.db import models
 
-class ClassModel(models.Model):
-    name = models.CharField(max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-
 class Student(models.Model):
+    id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    email = models.EmailField(unique=True)
+    email = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
-    address = models.TextField(blank=True, null=True)
-    class_ref = models.ForeignKey('classes.ClassModel', on_delete=models.CASCADE, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    address = models.CharField(max_length=500)
+    status = models.CharField(max_length=10)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
 
-    def __str__(self):
-        return self.name
-
+    class Meta:
+        db_table = 'students'
+        managed = False 

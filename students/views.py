@@ -1,39 +1,105 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Student, ClassModel
-from .forms import StudentForm
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from students.models import Student
+from teachers.models import Teacher
+from subjects.models import Subject
+from classes.models import ClassModel
+import re
 
-# List all students
+def home(request):
+    context = {
+        'student_count': Student.objects.count(),
+        'teacher_count': Teacher.objects.count(),
+        'subject_count': Subject.objects.count(),
+        'class_count': ClassModel.objects.count(),
+    }
+    return render(request, 'home.html', context)
+
+
 def student_list(request):
-    students = Student.objects.all()
+    students = Student.objects.all().order_by('id')
     return render(request, 'students/student_list.html', {'students': students})
 
-# Create new student
-def student_create(request):
-    if request.method == 'POST':
-        form = StudentForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('student_list')
-    else:
-        form = StudentForm()
-    return render(request, 'students/student_form.html', {'form': form})
 
-# Update student
-def student_update(request, pk):
-    student = get_object_or_404(Student, pk=pk)
+@csrf_exempt
+def add_student(request):
     if request.method == 'POST':
-        form = StudentForm(request.POST, instance=student)
-        if form.is_valid():
-            form.save()
-            return redirect('student_list')
-    else:
-        form = StudentForm(instance=student)
-    return render(request, 'students/student_form.html', {'form': form})
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        address = request.POST.get('address', '').strip()
+        status = request.POST.get('status', '').strip()
 
-# Delete student
-def student_delete(request, pk):
-    student = get_object_or_404(Student, pk=pk)
+        errors = {}
+
+        if not name: errors['name'] = 'Name is required'
+        if not email:
+            errors['email'] = 'Email is required'
+        elif not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
+            errors['email'] = 'Invalid email address'
+
+        if not phone:
+            errors['phone'] = 'Phone is required'
+        elif not re.match(r'^[0-9]{10,15}$', phone):
+            errors['phone'] = 'Phone must be 10-15 digits'
+
+        if not address: errors['address'] = 'Address is required'
+        if not status: errors['status'] = 'Please select a status'
+
+        if errors:
+            return JsonResponse({'status': 'error_fields', 'errors': errors})
+
+        Student.objects.create(
+            name=name, email=email, phone=phone, address=address, status=status
+        )
+        return JsonResponse({'status': 'success', 'message': 'Student added successfully!'})
+
+
+@csrf_exempt
+def update_student(request, id):
+    student = get_object_or_404(Student, id=id)
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        address = request.POST.get('address', '').strip()
+        status = request.POST.get('status', '').strip()
+
+        errors = {}
+
+        if not name: errors['name'] = 'Name is required'
+        if not email:
+            errors['email'] = 'Email is required'
+        elif not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
+            errors['email'] = 'Invalid email address'
+
+        if not phone:
+            errors['phone'] = 'Phone is required'
+        elif not re.match(r'^[0-9]{10,15}$', phone):
+            errors['phone'] = 'Phone must be 10-15 digits'
+
+        if not address: errors['address'] = 'Address is required'
+        if not status: errors['status'] = 'Please select a status'
+
+        if errors:
+            return JsonResponse({'status': 'error_fields', 'errors': errors})
+
+        student.name = name
+        student.email = email
+        student.phone = phone
+        student.address = address
+        student.status = status
+        student.save()
+
+        return JsonResponse({'status': 'success', 'message': 'Student updated successfully!'})
+
+
+
+@csrf_exempt
+def delete_student(request, id):
+    student = get_object_or_404(Student, id=id)
     if request.method == 'POST':
         student.delete()
-        return redirect('student_list')
-    return render(request, 'students/student_confirm_delete.html', {'student': student})
+        return JsonResponse({'status': 'success', 'message': 'Student deleted successfully!'})
