@@ -1,0 +1,31 @@
+{% load static %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<h1>Teachers</h1>
+<a href="{% url 'teacher_create' %}">Add Teacher</a>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Speciality</th>
+        <th>Phone</th>
+        <th>Actions</th>
+    </tr>
+    {% for teacher in teachers %}
+    <tr>
+        <td>{{ teacher.name }}</td>
+        <td>{{ teacher.email }}</td>
+        <td>{{ teacher.subject_speciality }}</td>
+        <td>{{ teacher.phone }}</td>
+        <td>
+            <a href="{% url 'teacher_update' teacher.id %}">Edit</a>
+            <a href="{% url 'teacher_delete' teacher.id %}">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const csrf_token = "{{ csrf_token }}";
+</script>
+
+<script src="{% static 'js/teacher.js' %}"></script>
