@@ -6,13 +6,17 @@ from students import views as student_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-<<<<<<< HEAD
+
     path('teachers/', include('teachers.urls')),
     path('students/', include('students.urls')), 
-=======
+
     path('', student_views.home, name='home'),
     path('students/', include('students.urls')),
->>>>>>> tahiyat
+
+    path('', student_views.home, name='home'),
+    path('students/', include('students.urls')),
+    path('teachers/', include('teachers.urls')),
+
 ]
 
 # Serve static files during development
