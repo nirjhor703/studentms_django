@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', student_views.home, name='home'),
     path('students/', include('students.urls')),
+    path('teachers/', include('teachers.urls')),
 ]
 
 # Serve static files during development
