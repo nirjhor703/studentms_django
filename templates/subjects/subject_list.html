@@ -1,29 +1,93 @@
-<h1>Students</h1>
-<a href="{% url 'student_create' %}">Add Student</a>
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Class</th>
-        <th>Actions</th>
-    </tr>
-    {% for student in students %}
-    <tr>
-        <td>{{ student.name }}</td>
-        <td>{{ student.email }}</td>
-        <td>{{ student.phone }}</td>
-        <td>
-            {% if student.class_ref %}
-                {{ student.class_ref.name }}
-            {% else %}
-                N/A
-            {% endif %}
-        </td>
-        <td>
-            <a href="{% url 'student_update' student.id %}">Edit</a>
-            <a href="{% url 'student_delete' student.id %}">Delete</a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Subjects{% endblock %}
+
+{% block content %}
+    <h1>Subjects</h1>
+    <a href="{% url 'subject-add' %}" class="btn btn-primary mb-3">
+        Add Subject
+    </a>
+    <div class="col-md-6">
+        <div class="card shadow-sm p-4">
+            <div class="table-responsive" style="max-height: 800px; overflow-y: auto;" id="tableContainerRight">
+            <table class="table table-bordered table-striped table-hover table-sm custom-border full-width-table" id="staffTableRight">
+                <thead class="table-dark" style="position: sticky; top: 0; z-index: 2;">
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Teacher</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody id="subjectTableBody">
+                <!-- Rows loaded dynamically -->
+                    {% for s in subjects %}    
+                    <tr class="subject-row"
+                        data-id="${s.id}"
+                        data-name="${s.name}"
+                        data-description="${s.description}"
+                        data-teacher_id="${s.teacher_id}"
+                        data-teacher="${s.teacher}">
+                        <td>{{ s.sub_id }}</td>
+                        <td>{{ s.sub_name }}</td>
+                        <td>{{ s.sub_desc }}</td>
+                        <td>{{ s.teacher_name }}</td>
+                        <td>
+                            <a href="{% url 'subject-edit' s.sub_id %}" class="btn btn-sm btn-warning">
+                                Edit
+                            </a>                            
+                         
+                            <button class="btn btn-sm btn-danger deleteBtn" data-id="${s.id}">
+                                Delete
+                            </button>
+                        </td>                    
+                    </tr>
+                    {% endfor %}                 
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="{% static 'js/save_csrftoken.js' %}"></script>
+
+<script>
+    $(document).on('click', '.deleteBtn', function(e) {
+        e.preventDefault(); // stop form submission
+        const tr = $(this).closest('tr');
+        const sub_id = tr.data('id');      
+
+        console.log(sub_id);
+
+        if (confirm("Confirm to remove this subject?")) {
+            $.ajax({
+                url: '/tag-participant-to-event/',
+                type: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },  // ✅ critical
+                data: { event: event_id, reg_no: reg_no },
+                dataType: 'json',
+                success: function(response) {
+                    console.log("Server returned:", response); // 👈 add this
+                    if (response.status === 'success') {
+                        reloadRightTable();
+                        reloadLeftTable();
+                        alert(response.message || "✅ Save successful!");
+                    } else {
+                        alert(response.message || "Error occurred");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseText); // Debug: see server error
+                    alert("❌ Server error: " + error);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
