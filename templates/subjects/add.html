@@ -73,6 +73,7 @@
                   <th>Name</th>
                   <th>Description</th>
                   <th>Teacher</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody id="subjectTableBody">
@@ -93,8 +94,8 @@
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="{% static 'js/save_csrftoken.js' %}"></script>
-<script src="{% static 'js/teacher_load.js' %}"></script>
-<script src="{% static 'js/subject_load.js' %}"></script>
-<script src="{% static 'js/subject_save.js' %}"></script>
+<script src="{% static 'js/teacher/teacher_load.js' %}"></script>
+<script src="{% static 'js/subject/subject_load.js' %}"></script>
+<script src="{% static 'js/subject/subject_save.js' %}"></script>
 
 {% endblock %}

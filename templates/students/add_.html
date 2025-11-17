@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Student{% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+  <h2>Add New Student</h2>
+
+  <form id="addForm" method="POST">
+    {% csrf_token %}
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Full Name</label>
+      <input type="text" name="name" class="form-control" placeholder="Enter full name" required>
+      <span class="text-danger small name_error"></span>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Email</label>
+      <input type="email" name="email" class="form-control" placeholder="Enter email" required>
+      <span class="text-danger small email_error"></span>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Phone</label>
+      <input type="text" name="phone" class="form-control" placeholder="Enter phone number" required>
+      <span class="text-danger small phone_error"></span>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Address</label>
+      <input type="text" name="address" class="form-control" placeholder="Enter address" required>
+      <span class="text-danger small address_error"></span>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Status</label>
+      <select name="status" class="form-control" required>
+        <option value="">Select Status</option>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+      </select>
+      <span class="text-danger small status_error"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100 mt-2">Save Student</button>
+  </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/student/student_load.js' %}"></script>
+{% endblock %}
