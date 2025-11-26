@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Watch Video{% endblock %}
+
+{% block content %}
+<h1>Watch Video</h1>
+
+<div class="col-md-10">
+    <div class="card shadow-sm p-4">
+
+        <h4 class="mb-3">{{ file_name }}</h4>
+
+        <div class="video-frame mb-3" 
+             style="border-radius: 10px; overflow: hidden; box-shadow: 0 0 12px rgba(0,0,0,0.2);">
+
+            <iframe src="{{ embed_url }}"
+                    width="100%" height="500"
+                    allow="autoplay"
+                    allowfullscreen
+                    style="border: none;">
+            </iframe>
+        </div>
+
+        <a href="/videos" class="btn btn-secondary">
+            ← Back to Videos
+        </a>
+
+    </div>
+</div>
+{% endblock %}

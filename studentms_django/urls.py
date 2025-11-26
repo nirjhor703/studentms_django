@@ -10,8 +10,9 @@ urlpatterns = [
     path('students/', include('students.urls')),
     path('teachers/', include('teachers.urls')),
     path('subjects/', include('subjects.urls')),
+    path('videos/', include('videos.urls')),
 ]
 
 # Serve static files during development
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0]) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

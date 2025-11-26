@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'teachers',
     'subjects',
     'classes',
+    'videos',
 ]
 
 MIDDLEWARE = [
@@ -131,3 +132,8 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Ensure media settings exist
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'  # Or wherever you store local video files
